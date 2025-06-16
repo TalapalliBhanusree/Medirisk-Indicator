@@ -21,6 +21,7 @@ let riskMeterChart = null
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM loaded, initializing app...")
   initializeTabs()
   initializeForm()
 })
@@ -33,6 +34,7 @@ function initializeTabs() {
   tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const targetTab = button.getAttribute("data-tab")
+      console.log("Switching to tab:", targetTab)
 
       // Remove active class from all tabs and contents
       tabButtons.forEach((btn) => btn.classList.remove("active"))
@@ -40,7 +42,10 @@ function initializeTabs() {
 
       // Add active class to clicked tab and corresponding content
       button.classList.add("active")
-      document.getElementById(targetTab).classList.add("active")
+      const targetContent = document.getElementById(targetTab)
+      if (targetContent) {
+        targetContent.classList.add("active")
+      }
     })
   })
 }
@@ -48,37 +53,57 @@ function initializeTabs() {
 // Form functionality
 function initializeForm() {
   const form = document.getElementById("riskForm")
-  form.addEventListener("submit", handleFormSubmit)
+  if (form) {
+    form.addEventListener("submit", handleFormSubmit)
 
-  // Add input event listeners for real-time updates
-  const inputs = form.querySelectorAll("input, select")
-  inputs.forEach((input) => {
-    input.addEventListener("change", updateAssessment)
-  })
+    // Add input event listeners for real-time updates
+    const inputs = form.querySelectorAll("input, select")
+    inputs.forEach((input) => {
+      input.addEventListener("change", updateAssessment)
+    })
+  }
 }
 
 function updateAssessment() {
-  assessment.age = Number.parseInt(document.getElementById("age").value) || 0
-  assessment.gender = document.getElementById("gender").value
-  assessment.weight = Number.parseFloat(document.getElementById("weight").value) || 0
-  assessment.height = Number.parseFloat(document.getElementById("height").value) || 0
-  assessment.bloodPressure = document.getElementById("bloodPressure").value
-  assessment.cholesterol = Number.parseInt(document.getElementById("cholesterol").value) || 0
-  assessment.smoking = document.getElementById("smoking").checked
-  assessment.diabetes = document.getElementById("diabetes").checked
-  assessment.familyHistory = document.getElementById("familyHistory").checked
-  assessment.exercise = document.getElementById("exercise").value
+  const ageInput = document.getElementById("age")
+  const genderInput = document.getElementById("gender")
+  const weightInput = document.getElementById("weight")
+  const heightInput = document.getElementById("height")
+  const bloodPressureInput = document.getElementById("bloodPressure")
+  const cholesterolInput = document.getElementById("cholesterol")
+  const smokingInput = document.getElementById("smoking")
+  const diabetesInput = document.getElementById("diabetes")
+  const familyHistoryInput = document.getElementById("familyHistory")
+  const exerciseInput = document.getElementById("exercise")
+
+  if (ageInput) assessment.age = Number.parseInt(ageInput.value) || 0
+  if (genderInput) assessment.gender = genderInput.value
+  if (weightInput) assessment.weight = Number.parseFloat(weightInput.value) || 0
+  if (heightInput) assessment.height = Number.parseFloat(heightInput.value) || 0
+  if (bloodPressureInput) assessment.bloodPressure = bloodPressureInput.value
+  if (cholesterolInput) assessment.cholesterol = Number.parseInt(cholesterolInput.value) || 0
+  if (smokingInput) assessment.smoking = smokingInput.checked
+  if (diabetesInput) assessment.diabetes = diabetesInput.checked
+  if (familyHistoryInput) assessment.familyHistory = familyHistoryInput.checked
+  if (exerciseInput) assessment.exercise = exerciseInput.value
+
+  console.log("Assessment updated:", assessment)
 }
 
 function handleFormSubmit(e) {
   e.preventDefault()
+  console.log("Form submitted")
+
   updateAssessment()
   calculateRisk()
   updateDashboard()
   updateRecommendations()
 
   // Switch to dashboard tab
-  document.querySelector('[data-tab="dashboard"]').click()
+  const dashboardTab = document.querySelector('[data-tab="dashboard"]')
+  if (dashboardTab) {
+    dashboardTab.click()
+  }
 }
 
 function calculateRisk() {
@@ -120,10 +145,18 @@ function calculateRisk() {
   else if (score <= 10) riskLevel = "Moderate"
   else if (score <= 15) riskLevel = "High"
   else riskLevel = "Very High"
+
+  console.log("Risk calculated:", { riskScore, riskLevel })
 }
 
 function updateDashboard() {
   const dashboardContent = document.getElementById("dashboardContent")
+  if (!dashboardContent) {
+    console.error("Dashboard content element not found")
+    return
+  }
+
+  console.log("Updating dashboard with risk score:", riskScore)
 
   if (riskScore === 0) {
     dashboardContent.className = "dashboard-hidden"
@@ -355,17 +388,28 @@ function generateRiskItems(type) {
 }
 
 function initializeCharts() {
+  console.log("Initializing charts...")
+
+  // Check if Chart.js is loaded
+  if (typeof Chart === "undefined") {
+    console.error("Chart.js is not loaded")
+    return
+  }
+
   // Destroy existing charts
   if (riskFactorsChart) {
     riskFactorsChart.destroy()
+    riskFactorsChart = null
   }
   if (riskMeterChart) {
     riskMeterChart.destroy()
+    riskMeterChart = null
   }
 
   // Risk Factors Chart
   const riskFactorsCtx = document.getElementById("riskFactorsChart")
   if (riskFactorsCtx) {
+    console.log("Creating risk factors chart...")
     const bmi = assessment.weight && assessment.height ? assessment.weight / (assessment.height / 100) ** 2 : 0
 
     const riskFactorsData = {
@@ -388,34 +432,40 @@ function initializeCharts() {
       ],
     }
 
-    riskFactorsChart = new Chart(riskFactorsCtx, {
-      type: "bar",
-      data: riskFactorsData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
+    try {
+      riskFactorsChart = new Chart(riskFactorsCtx, {
+        type: "bar",
+        data: riskFactorsData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
           },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 1,
-            ticks: {
-              stepSize: 1,
-              callback: (value) => (value === 1 ? "Present" : "Absent"),
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 1,
+              ticks: {
+                stepSize: 1,
+                callback: (value) => (value === 1 ? "Present" : "Absent"),
+              },
             },
           },
         },
-      },
-    })
+      })
+      console.log("Risk factors chart created successfully")
+    } catch (error) {
+      console.error("Error creating risk factors chart:", error)
+    }
   }
 
   // Risk Meter Chart
   const riskMeterCtx = document.getElementById("riskMeterChart")
   if (riskMeterCtx) {
+    console.log("Creating risk meter chart...")
     const riskPercentage = (riskScore / 20) * 100
     const remainingPercentage = 100 - riskPercentage
 
@@ -428,51 +478,62 @@ function initializeCharts() {
             ? "#f97316"
             : "#ef4444"
 
-    riskMeterChart = new Chart(riskMeterCtx, {
-      type: "doughnut",
-      data: {
-        datasets: [
+    try {
+      riskMeterChart = new Chart(riskMeterCtx, {
+        type: "doughnut",
+        data: {
+          datasets: [
+            {
+              data: [riskPercentage, remainingPercentage],
+              backgroundColor: [riskColor, "#e5e7eb"],
+              borderWidth: 0,
+              cutout: "70%",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
+        },
+        plugins: [
           {
-            data: [riskPercentage, remainingPercentage],
-            backgroundColor: [riskColor, "#e5e7eb"],
-            borderWidth: 0,
-            cutout: "70%",
+            id: "centerText",
+            beforeDraw: (chart) => {
+              const ctx = chart.ctx
+              ctx.save()
+              const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2
+              const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2
+
+              ctx.textAlign = "center"
+              ctx.textBaseline = "middle"
+              ctx.font = "bold 24px Arial"
+              ctx.fillStyle = "#374151"
+              ctx.fillText(`${riskScore}/20`, centerX, centerY)
+              ctx.restore()
+            },
           },
         ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-        },
-      },
-      plugins: [
-        {
-          id: "centerText",
-          beforeDraw: (chart) => {
-            const ctx = chart.ctx
-            ctx.save()
-            const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2
-            const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2
-
-            ctx.textAlign = "center"
-            ctx.textBaseline = "middle"
-            ctx.font = "bold 24px Arial"
-            ctx.fillStyle = "#374151"
-            ctx.fillText(`${riskScore}/20`, centerX, centerY)
-            ctx.restore()
-          },
-        },
-      ],
-    })
+      })
+      console.log("Risk meter chart created successfully")
+    } catch (error) {
+      console.error("Error creating risk meter chart:", error)
+    }
   }
 }
 
 function updateRecommendations() {
   const recommendationsContent = document.getElementById("recommendationsContent")
+  if (!recommendationsContent) {
+    console.error("Recommendations content element not found")
+    return
+  }
+
+  console.log("Updating recommendations with risk score:", riskScore)
 
   if (riskScore === 0) {
     recommendationsContent.className = "recommendations-hidden"

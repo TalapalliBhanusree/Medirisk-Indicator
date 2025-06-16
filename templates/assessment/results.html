@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}Assessment Results - MediRisk Indicator{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Results Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Assessment Results</h1>
+        <p class="lead">{{ assessment.patient.first_name }} {{ assessment.patient.last_name }} - {{ assessment.created_at|date:"F d, Y" }}</p>
+    </div>
+
+    <!-- Risk Overview -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ assessment.risk_score }}</div>
+                <div class="metric-label">Risk Score</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-{{ assessment.risk_level }}-gradient">
+                <div class="metric-value">{{ assessment.get_risk_level_display }}</div>
+                <div class="metric-label">Risk Level</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ assessment.ten_year_risk_percentage|floatformat:1 }}%</div>
+                <div class="metric-label">10-Year Risk</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ assessment.bmi|floatformat:1 }}</div>
+                <div class="metric-label">BMI</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Alert -->
+    <div class="alert alert-{{ assessment.risk_level }} alert-dismissible fade show mb-5" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle me-3 fs-4"></i>
+            <div>
+                <h5 class="alert-heading mb-1">Risk Assessment: {{ assessment.get_risk_level_display }}</h5>
+                <p class="mb-0">
+                    {% if assessment.risk_level == 'low' %}
+                        Excellent! Your cardiovascular risk is low. Continue maintaining your healthy lifestyle habits.
+                    {% elif assessment.risk_level == 'moderate' %}
+                        Your cardiovascular risk is moderate. Consider lifestyle modifications and regular monitoring.
+                    {% elif assessment.risk_level == 'high' %}
+                        Your cardiovascular risk is elevated. Consult with a healthcare provider for evaluation.
+                    {% else %}
+                        Your cardiovascular risk is very high. Immediate medical consultation is recommended.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-5">
+        <div class="col-lg-6">
+            <div class="dashboard-card">
+                <h4 class="mb-4"><i class="fas fa-chart-bar me-2"></i>Risk Factors Analysis</h4>
+                <div class="chart-container">
+                    <canvas id="riskFactorsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="dashboard-card">
+                <h4 class="mb-4"><i class="fas fa-bullseye me-2"></i>Risk Distribution</h4>
+                <div class="chart-container">
+                    <canvas id="riskDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="dashboard-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4><i class="fas fa-lightbulb me-2"></i>Personalized Recommendations</h4>
+                    <a href="{% url 'generate_report' assessment.assessment_id %}" class="btn btn-primary">
+                        <i class="fas fa-download me-2"></i>Download Report
+                    </a>
+                </div>
+                
+                {% for recommendation in recommendations %}
+                <div class="recommendation-card {{ recommendation.priority }}">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3">
+                            <i class="{{ recommendation.icon }} fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-2">{{ recommendation.title }}</h5>
+                            <p class="mb-0">{{ recommendation.description }}</p>
+                        </div>
+                        <span class="badge bg-{{ recommendation.priority }}">{{ recommendation.get_priority_display }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center mt-5">
+        <a href="{% url 'assessment_form' %}" class="btn btn-outline-primary btn-lg me-3">
+            <i class="fas fa-plus me-2"></i>New Assessment
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-tachometer-alt me-2"></i>View Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Risk Factors Chart
+    const riskFactorsCtx = document.getElementById('riskFactorsChart');
+    const riskFactorsData = {{ risk_factors_data|safe }};
+    
+    new Chart(riskFactorsCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(riskFactorsData),
+            datasets: [{
+                label: 'Risk Factor Present',
+                data: Object.values(riskFactorsData),
+                backgroundColor: [
+                    '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
+                    '#ef4444', '#06b6d4', '#10b981', '#f97316'
+                ],
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return value === 1 ? 'Present' : 'Absent';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Risk Distribution Chart
+    const riskDistributionCtx = document.getElementById('riskDistributionChart');
+    const riskPercentage = {{ risk_percentage }};
+    
+    new Chart(riskDistributionCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [riskPercentage, 100 - riskPercentage],
+                backgroundColor: ['#ef4444', '#e5e7eb'],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        },
+        plugins: [{
+            id: 'centerText',
+            beforeDraw: function(chart) {
+                const ctx = chart.ctx;
+                ctx.save();
+                const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+                const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = 'bold 24px Arial';
+                ctx.fillStyle = '#333';
+                ctx.fillText(riskPercentage.toFixed(1) + '%', centerX, centerY - 10);
+                
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#666';
+                ctx.fillText('10-Year Risk', centerX, centerY + 20);
+                ctx.restore();
+            }
+        }]
+    });
+});
+</script>
+{% endblock %}

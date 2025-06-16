@@ -1,0 +1,965 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Risk Assessment - MediRisk Indicator{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Assessment Form Specific Styles */
+.assessment-hero {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(124, 58, 237, 0.9) 100%),
+                url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.assessment-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.3;
+}
+
+.floating-medical-icons {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.medical-icon-float {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 2rem;
+    animation: floatMedical 6s ease-in-out infinite;
+}
+
+.medical-icon-float:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+.medical-icon-float:nth-child(2) { top: 60%; right: 15%; animation-delay: 2s; }
+.medical-icon-float:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 4s; }
+.medical-icon-float:nth-child(4) { top: 40%; right: 30%; animation-delay: 1s; }
+.medical-icon-float:nth-child(5) { bottom: 20%; right: 10%; animation-delay: 3s; }
+
+@keyframes floatMedical {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
+    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.4; }
+}
+
+.progress-medical {
+    height: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.progress-medical .progress-bar {
+    background: linear-gradient(90deg, #10b981, #059669, #047857);
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-medical .progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: progressShine 2s infinite;
+}
+
+.real-time-dashboard {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 2rem;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.real-time-dashboard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+    opacity: 0.03;
+    z-index: -1;
+}
+
+.risk-meter {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.risk-meter-bg {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(
+        #10b981 0deg 90deg,
+        #f59e0b 90deg 180deg,
+        #f97316 180deg 270deg,
+        #ef4444 270deg 360deg
+    );
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.risk-meter-inner {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.medical-card-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 1.5rem;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+}
+
+.section-header {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+    position: relative;
+}
+
+.section-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
+    opacity: 0.05;
+    z-index: -1;
+}
+
+.section-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.medical-input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.medical-input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    z-index: 2;
+}
+
+.form-control.with-icon {
+    padding-left: 45px;
+}
+
+.vital-signs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.vital-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.vital-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.vital-card:hover::before {
+    opacity: 1;
+}
+
+.vital-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.vital-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin: 0 auto 1rem;
+    font-size: 1.2rem;
+}
+
+.medical-background-sections {
+    position: relative;
+}
+
+.physical-measurements {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%),
+                url('https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+}
+
+.laboratory-values {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%),
+                url('https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+}
+
+.lifestyle-factors {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(217, 119, 6, 0.05) 100%),
+                url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+}
+
+.medical-history {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%),
+                url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+}
+
+.family-history {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(109, 40, 217, 0.05) 100%),
+                url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+}
+
+.medications {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(8, 145, 178, 0.05) 100%),
+                url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+}
+
+.heartbeat-animation {
+    animation: heartbeat 2s ease-in-out infinite;
+}
+
+.pulse-dot {
+    width: 12px;
+    height: 12px;
+    background: #ef4444;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 5px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.medical-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.medical-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.medical-tooltip:hover::after {
+    opacity: 1;
+}
+
+.submit-section {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+    border-radius: 2rem;
+    padding: 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+    opacity: 0.05;
+    z-index: -1;
+}
+
+.doctor-consultation {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.doctor-consultation:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+}
+
+@media (max-width: 768px) {
+    .risk-meter {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .vital-signs-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .doctor-consultation {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Assessment Hero Section -->
+<div class="assessment-hero">
+    <div class="floating-medical-icons">
+        <i class="fas fa-stethoscope medical-icon-float"></i>
+        <i class="fas fa-heartbeat medical-icon-float"></i>
+        <i class="fas fa-pills medical-icon-float"></i>
+        <i class="fas fa-user-md medical-icon-float"></i>
+        <i class="fas fa-chart-line medical-icon-float"></i>
+    </div>
+    
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold text-white mb-4">
+                    <i class="fas fa-heart-pulse heartbeat-animation me-3"></i>
+                    Cardiovascular Risk Assessment
+                </h1>
+                <p class="lead text-white mb-4">
+                    Complete comprehensive evaluation for personalized risk analysis
+                    <span class="pulse-dot"></span>
+                    <span class="pulse-dot" style="animation-delay: 0.5s;"></span>
+                    <span class="pulse-dot" style="animation-delay: 1s;"></span>
+                </p>
+                <div class="progress-medical mb-4">
+                    <div class="progress-bar" role="progressbar" style="width: 0%" id="formProgress"></div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="risk-meter">
+                    <div class="risk-meter-bg">
+                        <div class="risk-meter-inner">
+                            <div class="display-6 fw-bold text-primary" id="realTimeScore">0</div>
+                            <small class="text-muted">Risk Score</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Real-time Risk Dashboard -->
+    <div class="real-time-dashboard mb-5">
+        <div class="row text-center">
+            <div class="col-md-4 mb-3">
+                <div class="vital-card">
+                    <div class="vital-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h5>Risk Level</h5>
+                    <span class="badge fs-6 px-3 py-2 risk-low" id="realTimeLevel">Low Risk</span>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="vital-card">
+                    <div class="vital-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5>10-Year Risk</h5>
+                    <div class="display-6 fw-bold text-warning" id="realTimeRisk">0%</div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="vital-card">
+                    <div class="vital-icon">
+                        <i class="fas fa-weight"></i>
+                    </div>
+                    <h5>BMI Status</h5>
+                    <div class="fw-bold text-info" id="bmiStatus">Normal</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assessment Form -->
+    <form method="post" id="assessmentForm" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <!-- Physical Measurements Section -->
+        <div class="medical-card-section physical-measurements">
+            <div class="section-header">
+                <div class="d-flex align-items-center">
+                    <div class="section-icon">
+                        <i class="fas fa-weight"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">Physical Measurements</h4>
+                        <p class="text-muted mb-0">Basic vital statistics and measurements</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-weight-hanging medical-input-icon"></i>
+                            {{ form.weight|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Weight in kilograms">Weight (kg)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-ruler-vertical medical-input-icon"></i>
+                            {{ form.height|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Height in centimeters">Height (cm)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-heartbeat medical-input-icon"></i>
+                            {{ form.systolic_bp|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Systolic blood pressure">Systolic BP</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-heartbeat medical-input-icon"></i>
+                            {{ form.diastolic_bp|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Diastolic blood pressure">Diastolic BP</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.blood_pressure_category|add_class:"form-select" }}
+                        <label class="form-label">Blood Pressure Category</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Laboratory Values Section -->
+        <div class="medical-card-section laboratory-values">
+            <div class="section-header">
+                <div class="d-flex align-items-center">
+                    <div class="section-icon">
+                        <i class="fas fa-vial"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">Laboratory Values</h4>
+                        <p class="text-muted mb-0">Blood tests and laboratory results</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-tint medical-input-icon"></i>
+                            {{ form.total_cholesterol|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Total cholesterol level">Total Cholesterol</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-tint medical-input-icon"></i>
+                            {{ form.hdl_cholesterol|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="HDL (good) cholesterol">HDL Cholesterol</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-tint medical-input-icon"></i>
+                            {{ form.ldl_cholesterol|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="LDL (bad) cholesterol">LDL Cholesterol</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-tint medical-input-icon"></i>
+                            {{ form.triglycerides|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Triglycerides level">Triglycerides</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-cube medical-input-icon"></i>
+                            {{ form.blood_glucose|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Blood glucose level">Blood Glucose</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-cube medical-input-icon"></i>
+                            {{ form.hba1c|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Hemoglobin A1c level">HbA1c</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lifestyle Factors Section -->
+        <div class="medical-card-section lifestyle-factors">
+            <div class="section-header">
+                <div class="d-flex align-items-center">
+                    <div class="section-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">Lifestyle Factors</h4>
+                        <p class="text-muted mb-0">Daily habits and lifestyle choices</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.exercise_frequency|add_class:"form-select" }}
+                        <label class="form-label">Exercise Frequency</label>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-brain medical-input-icon"></i>
+                            {{ form.stress_level|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Stress level (1-10 scale)">Stress Level</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.smoking_status|add_class:"form-select" }}
+                        <label class="form-label">Smoking Status</label>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="medical-input-group">
+                            <i class="fas fa-smoking medical-input-icon"></i>
+                            {{ form.smoking_years|add_class:"form-control with-icon" }}
+                            <label class="form-label medical-tooltip" data-tooltip="Years of smoking">Smoking Years</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        {{ form.alcohol_consumption|add_class:"form-select" }}
+                        <label class="form-label">Alcohol Consumption</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical History Section -->
+        <div class="medical-card-section medical-history">
+            <div class="section-header">
+                <div class="d-flex align-items-center">
+                    <div class="section-icon">
+                        <i class="fas fa-notes-medical"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">Medical History</h4>
+                        <p class="text-muted mb-0">Personal medical conditions and history</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.diabetes }}
+                            <label class="form-check-label" for="{{ form.diabetes.id_for_label }}">
+                                <i class="fas fa-syringe me-2"></i>Diabetes
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.hypertension }}
+                            <label class="form-check-label" for="{{ form.hypertension.id_for_label }}">
+                                <i class="fas fa-heartbeat me-2"></i>Hypertension
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.heart_disease }}
+                            <label class="form-check-label" for="{{ form.heart_disease.id_for_label }}">
+                                <i class="fas fa-heart me-2"></i>Heart Disease
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.stroke_history }}
+                            <label class="form-check-label" for="{{ form.stroke_history.id_for_label }}">
+                                <i class="fas fa-brain me-2"></i>Stroke History
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Family History Section -->
+        <div class="medical-card-section family-history">
+            <div class="section-header">
+                <div class="d-flex align-items-center">
+                    <div class="section-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">Family History</h4>
+                        <p class="text-muted mb-0">Family medical history and genetic factors</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.family_heart_disease }}
+                            <label class="form-check-label" for="{{ form.family_heart_disease.id_for_label }}">
+                                <i class="fas fa-heart me-2"></i>Family Heart Disease
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.family_diabetes }}
+                            <label class="form-check-label" for="{{ form.family_diabetes.id_for_label }}">
+                                <i class="fas fa-syringe me-2"></i>Family Diabetes
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.family_stroke }}
+                            <label class="form-check-label" for="{{ form.family_stroke.id_for_label }}">
+                                <i class="fas fa-brain me-2"></i>Family Stroke
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Medications Section -->
+        <div class="medical-card-section medications">
+            <div class="section-header">
+                <div class="d-flex align-items-center">
+                    <div class="section-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">Current Medications</h4>
+                        <p class="text-muted mb-0">Medications currently being taken</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.on_blood_thinners }}
+                            <label class="form-check-label" for="{{ form.on_blood_thinners.id_for_label }}">
+                                <i class="fas fa-tint me-2"></i>Blood Thinners
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.on_cholesterol_meds }}
+                            <label class="form-check-label" for="{{ form.on_cholesterol_meds.id_for_label }}">
+                                <i class="fas fa-capsules me-2"></i>Cholesterol Meds
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.on_bp_medication }}
+                            <label class="form-check-label" for="{{ form.on_bp_medication.id_for_label }}">
+                                <i class="fas fa-heartbeat me-2"></i>BP Medication
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.on_diabetes_meds }}
+                            <label class="form-check-label" for="{{ form.on_diabetes_meds.id_for_label }}">
+                                <i class="fas fa-syringe me-2"></i>Diabetes Meds
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 class="mb-3">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Ready for Your Risk Assessment?
+                    </h3>
+                    <p class="lead mb-0">
+                        Complete analysis will provide personalized recommendations and risk factors
+                    </p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 py-3">
+                        <i class="fas fa-calculator me-2"></i>
+                        Calculate Risk Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Floating Doctor Consultation -->
+<div class="doctor-consultation" data-bs-toggle="tooltip" data-bs-placement="left" title="Need help? Consult with our medical team">
+    <i class="fas fa-user-md"></i>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('assessmentForm');
+    const inputs = form.querySelectorAll('input, select');
+    const progressBar = document.getElementById('formProgress');
+    
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Real-time risk calculation
+    function calculateRealTimeRisk() {
+        const formData = new FormData(form);
+        const data = {};
+        
+        for (let [key, value] of formData.entries()) {
+            if (key.includes('checkbox') || inputs.find(input => input.name === key && input.type === 'checkbox')) {
+                data[key] = value === 'on' || value === true;
+            } else {
+                data[key] = value;
+            }
+        }
+        
+        // Add patient data
+        data.date_of_birth = '{{ patient.date_of_birth|date:"Y-m-d" }}';
+        data.gender = '{{ patient.gender }}';
+        
+        fetch('{% url "real_time_risk" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.error) {
+                // Update risk score with animation
+                animateValue('realTimeScore', 0, data.risk_score, 1000);
+                animateValue('realTimeRisk', 0, data.ten_year_risk, 1000, '%');
+                
+                // Update risk level badge
+                const levelBadge = document.getElementById('realTimeLevel');
+                levelBadge.textContent = data.risk_level.replace('_', ' ').toUpperCase();
+                levelBadge.className = 'badge fs-6 px-3 py-2 risk-' + data.risk_level;
+                
+                // Update BMI status
+                const bmiStatus = document.getElementById('bmiStatus');
+                if (data.bmi) {
+                    let bmiCategory = 'Normal';
+                    if (data.bmi < 18.5) bmiCategory = 'Underweight';
+                    else if (data.bmi >= 25 && data.bmi < 30) bmiCategory = 'Overweight';
+                    else if (data.bmi >= 30) bmiCategory = 'Obese';
+                    
+                    bmiStatus.textContent = `${data.bmi.toFixed(1)} - ${bmiCategory}`;
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    // Animate number values
+    function animateValue(elementId, start, end, duration, suffix = '') {
+        const element = document.getElementById(elementId);
+        const range = end - start;
+        const increment = range / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                current = end;
+                clearInterval(timer);
+            }
+            element.textContent = Math.round(current * 10) / 10 + suffix;
+        }, 16);
+    }
+    
+    // Progress tracking with smooth animation
+    function updateProgress() {
+        const totalFields = inputs.length;
+        let filledFields = 0;
+        
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                if (input.checked) filledFields++;
+            } else if (input.value.trim() !== '') {
+                filledFields++;
+            }
+        });
+        
+        const progress = (filledFields / totalFields) * 100;
+        progressBar.style.width = progress + '%';
+        
+        // Change progress bar color based on completion
+        if (progress < 25) {
+            progressBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+        } else if (progress < 50) {
+            progressBar.style.background = 'linear-gradient(90deg, #f97316, #ea580c)';
+        } else if (progress < 75) {
+            progressBar.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+        } else {
+            progressBar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+        }
+        
+        if (progress > 30) {
+            calculateRealTimeRisk();
+        }
+    }
+    
+    // Add event listeners with debouncing
+    let debounceTimer;
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(updateProgress, 300);
+        });
+        input.addEventListener('change', updateProgress);
+    });
+    
+    // Form validation with custom styling
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Scroll to first invalid field
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+        }
+        form.classList.add('was-validated');
+    });
+    
+    // Initial progress update
+    updateProgress();
+    
+    // Add floating animation to medical icons
+    const medicalIcons = document.querySelectorAll('.medical-icon-float');
+    medicalIcons.forEach((icon, index) => {
+        icon.style.animationDelay = `${index * 0.5}s`;
+    });
+});
+</script>
+{% endblock %}
