@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediRisk Indicator - Cardiovascular Risk Assessment</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Animated Background Elements -->
+    <div class="background-elements">
+        <div class="bg-element bg-element-1"></div>
+        <div class="bg-element bg-element-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-icon">
+                <i class="fas fa-stethoscope"></i>
+            </div>
+            <h1 class="header-title">MediRisk Indicator</h1>
+            <p class="header-subtitle">Advanced cardiovascular risk assessment with AI-powered insights and personalized recommendations</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="assessment">
+                <i class="fas fa-user"></i>
+                Assessment
+            </button>
+            <button class="tab-button" data-tab="dashboard">
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </button>
+            <button class="tab-button" data-tab="recommendations">
+                <i class="fas fa-bullseye"></i>
+                Recommendations
+            </button>
+        </div>
+
+        <!-- Assessment Tab -->
+        <div id="assessment" class="tab-content active">
+            <div class="card assessment-card">
+                <div class="card-header gradient-blue">
+                    <div class="card-header-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h2 class="card-title">Patient Information</h2>
+                        <p class="card-description">Complete the assessment form for comprehensive risk analysis</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <form id="riskForm" class="assessment-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" placeholder="Enter age" min="1" max="120">
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender">
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" id="weight" placeholder="Enter weight" min="1" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" id="height" placeholder="Enter height" min="1" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="bloodPressure">Blood Pressure</label>
+                                <select id="bloodPressure">
+                                    <option value="">Select BP level</option>
+                                    <option value="normal">Normal (&lt;120/80)</option>
+                                    <option value="elevated">Elevated (120-129/&lt;80)</option>
+                                    <option value="high">High (≥130/80)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cholesterol">Cholesterol (mg/dL)</label>
+                                <input type="number" id="cholesterol" placeholder="Enter cholesterol level" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="exercise">Exercise Level</label>
+                                <select id="exercise">
+                                    <option value="">Select exercise level</option>
+                                    <option value="none">None</option>
+                                    <option value="light">Light (1-2 days/week)</option>
+                                    <option value="moderate">Moderate (3-4 days/week)</option>
+                                    <option value="intense">Intense (5+ days/week)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="risk-factors">
+                            <label class="risk-factors-title">Risk Factors</label>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" id="smoking">
+                                    <span class="checkmark"></span>
+                                    Smoking
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" id="diabetes">
+                                    <span class="checkmark"></span>
+                                    Diabetes
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" id="familyHistory">
+                                    <span class="checkmark"></span>
+                                    Family History
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="calculate-btn">
+                            <i class="fas fa-bolt"></i>
+                            Calculate Risk Score
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <div id="dashboardContent" class="dashboard-hidden">
+                <p class="no-data-message">
+                    <i class="fas fa-heart"></i>
+                    Please complete the risk assessment to view your dashboard
+                </p>
+            </div>
+        </div>
+
+        <!-- Recommendations Tab -->
+        <div id="recommendations" class="tab-content">
+            <div id="recommendationsContent" class="recommendations-hidden">
+                <div class="card">
+                    <div class="card-content no-data">
+                        <div class="no-data-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Complete Your Risk Assessment</h3>
+                        <p>Please complete the comprehensive risk assessment to receive personalized recommendations and insights.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

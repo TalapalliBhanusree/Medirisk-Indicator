@@ -11,8 +11,21 @@ import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { Heart, Activity, AlertTriangle, CheckCircle, TrendingUp, User, Calendar, Weight } from "lucide-react"
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, RadialBarChart, RadialBar } from "recharts"
+import {
+  Heart,
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  TrendingUp,
+  User,
+  Calendar,
+  Weight,
+  Stethoscope,
+  Shield,
+  Target,
+  Zap,
+} from "lucide-react"
 
 interface RiskAssessment {
   age: number
@@ -89,90 +102,157 @@ export default function MedRiskDashboard() {
   const getRiskColor = (level: string) => {
     switch (level) {
       case "Low":
-        return "bg-green-500"
+        return "from-emerald-500 to-green-600"
       case "Moderate":
-        return "bg-yellow-500"
+        return "from-amber-500 to-yellow-600"
       case "High":
-        return "bg-orange-500"
+        return "from-orange-500 to-red-500"
       case "Very High":
-        return "bg-red-500"
+        return "from-red-500 to-rose-600"
       default:
-        return "bg-gray-500"
+        return "from-gray-400 to-gray-500"
+    }
+  }
+
+  const getRiskBadgeColor = (level: string) => {
+    switch (level) {
+      case "Low":
+        return "bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25"
+      case "Moderate":
+        return "bg-gradient-to-r from-amber-500 to-yellow-600 text-white shadow-lg shadow-amber-500/25"
+      case "High":
+        return "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25"
+      case "Very High":
+        return "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/25"
+      default:
+        return "bg-gradient-to-r from-gray-400 to-gray-500 text-white"
     }
   }
 
   const riskFactorsData = [
-    { name: "Age", value: assessment.age > 45 ? 1 : 0, color: "#ef4444" },
+    { name: "Age", value: assessment.age > 45 ? 1 : 0, color: "#6366f1" },
     {
       name: "BMI",
       value:
         assessment.weight && assessment.height ? (assessment.weight / (assessment.height / 100) ** 2 > 25 ? 1 : 0) : 0,
-      color: "#f97316",
+      color: "#8b5cf6",
     },
-    { name: "BP", value: assessment.bloodPressure === "high" ? 1 : 0, color: "#eab308" },
-    { name: "Cholesterol", value: assessment.cholesterol > 200 ? 1 : 0, color: "#22c55e" },
-    { name: "Smoking", value: assessment.smoking ? 1 : 0, color: "#8b5cf6" },
+    { name: "BP", value: assessment.bloodPressure === "high" ? 1 : 0, color: "#ec4899" },
+    { name: "Cholesterol", value: assessment.cholesterol > 200 ? 1 : 0, color: "#f59e0b" },
+    { name: "Smoking", value: assessment.smoking ? 1 : 0, color: "#ef4444" },
     { name: "Diabetes", value: assessment.diabetes ? 1 : 0, color: "#06b6d4" },
   ]
 
   const riskDistribution = [
-    { name: "Low Risk", value: riskLevel === "Low" ? 100 : 0, color: "#22c55e" },
-    { name: "Moderate Risk", value: riskLevel === "Moderate" ? 100 : 0, color: "#eab308" },
+    { name: "Low Risk", value: riskLevel === "Low" ? 100 : 0, color: "#10b981" },
+    { name: "Moderate Risk", value: riskLevel === "Moderate" ? 100 : 0, color: "#f59e0b" },
     { name: "High Risk", value: riskLevel === "High" ? 100 : 0, color: "#f97316" },
     { name: "Very High Risk", value: riskLevel === "Very High" ? 100 : 0, color: "#ef4444" },
   ].filter((item) => item.value > 0)
 
+  const radialData = [
+    {
+      name: "Risk Score",
+      value: (riskScore / 20) * 100,
+      fill:
+        riskLevel === "Low"
+          ? "#10b981"
+          : riskLevel === "Moderate"
+            ? "#f59e0b"
+            : riskLevel === "High"
+              ? "#f97316"
+              : "#ef4444",
+    },
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center gap-2">
-            <Heart className="h-8 w-8 text-red-500" />
-            Medical Risk Indicator
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-blue-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto p-6 space-y-8">
+        {/* Enhanced Header */}
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl shadow-2xl shadow-red-500/25 mb-4">
+            <Stethoscope className="h-10 w-10 text-white" />
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 via-blue-800 to-indigo-800 bg-clip-text text-transparent">
+            MediRisk Indicator
           </h1>
-          <p className="text-gray-600">Comprehensive health risk assessment and monitoring</p>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Advanced cardiovascular risk assessment with AI-powered insights and personalized recommendations
+          </p>
         </div>
 
-        <Tabs defaultValue="assessment" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="assessment">Risk Assessment</TabsTrigger>
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+        <Tabs defaultValue="assessment" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-3 bg-white/70 backdrop-blur-sm border border-white/20 shadow-xl rounded-2xl p-2">
+            <TabsTrigger
+              value="assessment"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl transition-all duration-300"
+            >
+              <User className="h-4 w-4 mr-2" />
+              Assessment
+            </TabsTrigger>
+            <TabsTrigger
+              value="dashboard"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl transition-all duration-300"
+            >
+              <Activity className="h-4 w-4 mr-2" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger
+              value="recommendations"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl transition-all duration-300"
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Recommendations
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="assessment" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+          <TabsContent value="assessment" className="space-y-8">
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-blue-500/10 rounded-3xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-8">
+                <CardTitle className="flex items-center gap-3 text-2xl">
+                  <div className="p-2 bg-white/20 rounded-xl">
+                    <User className="h-6 w-6" />
+                  </div>
                   Patient Information
                 </CardTitle>
-                <CardDescription>Enter patient details for risk assessment</CardDescription>
+                <CardDescription className="text-blue-100 text-lg">
+                  Complete the assessment form for comprehensive risk analysis
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="age">Age</Label>
+              <CardContent className="p-8 space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="age" className="text-slate-700 font-semibold">
+                      Age
+                    </Label>
                     <Input
                       id="age"
                       type="number"
                       placeholder="Enter age"
+                      className="h-12 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
                       value={assessment.age || ""}
                       onChange={(e) => setAssessment({ ...assessment, age: Number.parseInt(e.target.value) || 0 })}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="gender">Gender</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="gender" className="text-slate-700 font-semibold">
+                      Gender
+                    </Label>
                     <Select
                       value={assessment.gender}
                       onValueChange={(value) => setAssessment({ ...assessment, gender: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 border-2 border-slate-200 rounded-xl focus:border-blue-500 transition-all duration-300">
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="rounded-xl border-0 shadow-2xl">
                         <SelectItem value="male">Male</SelectItem>
                         <SelectItem value="female">Female</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
@@ -180,38 +260,46 @@ export default function MedRiskDashboard() {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="weight">Weight (kg)</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="weight" className="text-slate-700 font-semibold">
+                      Weight (kg)
+                    </Label>
                     <Input
                       id="weight"
                       type="number"
                       placeholder="Enter weight"
+                      className="h-12 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
                       value={assessment.weight || ""}
                       onChange={(e) => setAssessment({ ...assessment, weight: Number.parseFloat(e.target.value) || 0 })}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="height">Height (cm)</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="height" className="text-slate-700 font-semibold">
+                      Height (cm)
+                    </Label>
                     <Input
                       id="height"
                       type="number"
                       placeholder="Enter height"
+                      className="h-12 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
                       value={assessment.height || ""}
                       onChange={(e) => setAssessment({ ...assessment, height: Number.parseFloat(e.target.value) || 0 })}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="bp">Blood Pressure</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="bp" className="text-slate-700 font-semibold">
+                      Blood Pressure
+                    </Label>
                     <Select
                       value={assessment.bloodPressure}
                       onValueChange={(value) => setAssessment({ ...assessment, bloodPressure: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 border-2 border-slate-200 rounded-xl focus:border-blue-500 transition-all duration-300">
                         <SelectValue placeholder="Select BP level" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="rounded-xl border-0 shadow-2xl">
                         <SelectItem value="normal">Normal ({"<120/80"})</SelectItem>
                         <SelectItem value="elevated">Elevated (120-129/{"<80"})</SelectItem>
                         <SelectItem value="high">High ({"≥130/80"})</SelectItem>
@@ -219,12 +307,15 @@ export default function MedRiskDashboard() {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="cholesterol">Cholesterol (mg/dL)</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="cholesterol" className="text-slate-700 font-semibold">
+                      Cholesterol (mg/dL)
+                    </Label>
                     <Input
                       id="cholesterol"
                       type="number"
                       placeholder="Enter cholesterol level"
+                      className="h-12 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
                       value={assessment.cholesterol || ""}
                       onChange={(e) =>
                         setAssessment({ ...assessment, cholesterol: Number.parseInt(e.target.value) || 0 })
@@ -232,16 +323,18 @@ export default function MedRiskDashboard() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="exercise">Exercise Level</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="exercise" className="text-slate-700 font-semibold">
+                      Exercise Level
+                    </Label>
                     <Select
                       value={assessment.exercise}
                       onValueChange={(value) => setAssessment({ ...assessment, exercise: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 border-2 border-slate-200 rounded-xl focus:border-blue-500 transition-all duration-300">
                         <SelectValue placeholder="Select exercise level" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="rounded-xl border-0 shadow-2xl">
                         <SelectItem value="none">None</SelectItem>
                         <SelectItem value="light">Light (1-2 days/week)</SelectItem>
                         <SelectItem value="moderate">Moderate (3-4 days/week)</SelectItem>
@@ -251,138 +344,180 @@ export default function MedRiskDashboard() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <Label>Risk Factors</Label>
-                  <div className="flex flex-wrap gap-4">
-                    <label className="flex items-center space-x-2">
+                <div className="space-y-6">
+                  <Label className="text-slate-700 font-semibold text-lg">Risk Factors</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label className="flex items-center space-x-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl border-2 border-slate-200 hover:border-blue-300 transition-all duration-300 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={assessment.smoking}
                         onChange={(e) => setAssessment({ ...assessment, smoking: e.target.checked })}
-                        className="rounded"
+                        className="w-5 h-5 text-blue-600 rounded-lg focus:ring-blue-500"
                       />
-                      <span>Smoking</span>
+                      <span className="font-medium text-slate-700">Smoking</span>
                     </label>
-                    <label className="flex items-center space-x-2">
+                    <label className="flex items-center space-x-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl border-2 border-slate-200 hover:border-blue-300 transition-all duration-300 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={assessment.diabetes}
                         onChange={(e) => setAssessment({ ...assessment, diabetes: e.target.checked })}
-                        className="rounded"
+                        className="w-5 h-5 text-blue-600 rounded-lg focus:ring-blue-500"
                       />
-                      <span>Diabetes</span>
+                      <span className="font-medium text-slate-700">Diabetes</span>
                     </label>
-                    <label className="flex items-center space-x-2">
+                    <label className="flex items-center space-x-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl border-2 border-slate-200 hover:border-blue-300 transition-all duration-300 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={assessment.familyHistory}
                         onChange={(e) => setAssessment({ ...assessment, familyHistory: e.target.checked })}
-                        className="rounded"
+                        className="w-5 h-5 text-blue-600 rounded-lg focus:ring-blue-500"
                       />
-                      <span>Family History of Heart Disease</span>
+                      <span className="font-medium text-slate-700">Family History</span>
                     </label>
                   </div>
                 </div>
 
-                <Button onClick={calculateRisk} className="w-full">
+                <Button
+                  onClick={calculateRisk}
+                  className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold text-lg rounded-2xl shadow-2xl shadow-blue-500/25 transition-all duration-300 transform hover:scale-[1.02]"
+                >
+                  <Zap className="h-5 w-5 mr-2" />
                   Calculate Risk Score
                 </Button>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="dashboard" className="space-y-6">
+          <TabsContent value="dashboard" className="space-y-8">
             {riskScore > 0 && (
               <>
-                {/* Risk Score Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card>
+                {/* Enhanced Risk Score Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white border-0 shadow-2xl shadow-blue-500/25 rounded-3xl overflow-hidden transform hover:scale-105 transition-all duration-300">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Risk Score</p>
-                          <p className="text-3xl font-bold">{riskScore}</p>
+                          <p className="text-blue-100 font-medium">Risk Score</p>
+                          <p className="text-4xl font-bold">{riskScore}</p>
+                          <p className="text-blue-200 text-sm">out of 20</p>
                         </div>
-                        <TrendingUp className="h-8 w-8 text-blue-500" />
+                        <div className="p-3 bg-white/20 rounded-2xl">
+                          <TrendingUp className="h-8 w-8" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-slate-500/10 rounded-3xl overflow-hidden transform hover:scale-105 transition-all duration-300">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Risk Level</p>
-                          <Badge className={`${getRiskColor(riskLevel)} text-white`}>{riskLevel}</Badge>
+                          <p className="text-slate-600 font-medium">Risk Level</p>
+                          <Badge
+                            className={`${getRiskBadgeColor(riskLevel)} px-4 py-2 text-sm font-semibold rounded-xl mt-2`}
+                          >
+                            {riskLevel}
+                          </Badge>
                         </div>
-                        <AlertTriangle className="h-8 w-8 text-orange-500" />
+                        <div className="p-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl">
+                          <AlertTriangle className="h-8 w-8 text-white" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white border-0 shadow-2xl shadow-emerald-500/25 rounded-3xl overflow-hidden transform hover:scale-105 transition-all duration-300">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">BMI</p>
-                          <p className="text-3xl font-bold">
+                          <p className="text-emerald-100 font-medium">BMI</p>
+                          <p className="text-4xl font-bold">
                             {assessment.weight && assessment.height
                               ? (assessment.weight / (assessment.height / 100) ** 2).toFixed(1)
                               : "--"}
                           </p>
+                          <p className="text-emerald-200 text-sm">kg/m²</p>
                         </div>
-                        <Weight className="h-8 w-8 text-green-500" />
+                        <div className="p-3 bg-white/20 rounded-2xl">
+                          <Weight className="h-8 w-8" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white border-0 shadow-2xl shadow-purple-500/25 rounded-3xl overflow-hidden transform hover:scale-105 transition-all duration-300">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Age Group</p>
-                          <p className="text-3xl font-bold">{assessment.age}</p>
+                          <p className="text-purple-100 font-medium">Age</p>
+                          <p className="text-4xl font-bold">{assessment.age}</p>
+                          <p className="text-purple-200 text-sm">years</p>
                         </div>
-                        <Calendar className="h-8 w-8 text-purple-500" />
+                        <div className="p-3 bg-white/20 rounded-2xl">
+                          <Calendar className="h-8 w-8" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Risk Level Alert */}
+                {/* Enhanced Risk Level Alert */}
                 <Alert
-                  className={`border-l-4 ${
+                  className={`border-0 rounded-3xl p-6 shadow-2xl ${
                     riskLevel === "Low"
-                      ? "border-green-500 bg-green-50"
+                      ? "bg-gradient-to-r from-emerald-50 to-green-50 shadow-emerald-500/20"
                       : riskLevel === "Moderate"
-                        ? "border-yellow-500 bg-yellow-50"
+                        ? "bg-gradient-to-r from-amber-50 to-yellow-50 shadow-amber-500/20"
                         : riskLevel === "High"
-                          ? "border-orange-500 bg-orange-50"
-                          : "border-red-500 bg-red-50"
+                          ? "bg-gradient-to-r from-orange-50 to-red-50 shadow-orange-500/20"
+                          : "bg-gradient-to-r from-red-50 to-rose-50 shadow-red-500/20"
                   }`}
                 >
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Risk Assessment: {riskLevel} Risk</AlertTitle>
-                  <AlertDescription>
-                    {riskLevel === "Low" &&
-                      "Your cardiovascular risk is low. Continue maintaining healthy lifestyle habits."}
-                    {riskLevel === "Moderate" &&
-                      "Your cardiovascular risk is moderate. Consider lifestyle modifications and regular monitoring."}
-                    {riskLevel === "High" &&
-                      "Your cardiovascular risk is high. Consult with a healthcare provider for comprehensive evaluation."}
-                    {riskLevel === "Very High" &&
-                      "Your cardiovascular risk is very high. Immediate medical consultation is recommended."}
-                  </AlertDescription>
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`p-3 rounded-2xl ${
+                        riskLevel === "Low"
+                          ? "bg-emerald-500"
+                          : riskLevel === "Moderate"
+                            ? "bg-amber-500"
+                            : riskLevel === "High"
+                              ? "bg-orange-500"
+                              : "bg-red-500"
+                      }`}
+                    >
+                      <Shield className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <AlertTitle className="text-xl font-bold text-slate-800 mb-2">
+                        Risk Assessment: {riskLevel} Risk
+                      </AlertTitle>
+                      <AlertDescription className="text-slate-700 text-lg leading-relaxed">
+                        {riskLevel === "Low" &&
+                          "Excellent! Your cardiovascular risk is low. Continue maintaining your healthy lifestyle habits to keep your heart strong."}
+                        {riskLevel === "Moderate" &&
+                          "Your cardiovascular risk is moderate. Consider implementing lifestyle modifications and schedule regular health monitoring."}
+                        {riskLevel === "High" &&
+                          "Your cardiovascular risk is elevated. We recommend consulting with a healthcare provider for a comprehensive evaluation and treatment plan."}
+                        {riskLevel === "Very High" &&
+                          "Your cardiovascular risk is very high. Immediate medical consultation is strongly recommended for proper assessment and intervention."}
+                      </AlertDescription>
+                    </div>
+                  </div>
                 </Alert>
 
-                {/* Charts */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Risk Factors Analysis</CardTitle>
-                      <CardDescription>Individual risk factor contributions</CardDescription>
+                {/* Enhanced Charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-slate-500/10 rounded-3xl overflow-hidden">
+                    <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-6">
+                      <CardTitle className="flex items-center gap-3 text-xl">
+                        <Activity className="h-6 w-6" />
+                        Risk Factors Analysis
+                      </CardTitle>
+                      <CardDescription className="text-indigo-100">
+                        Individual risk factor contributions
+                      </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6">
                       <ChartContainer
                         config={{
                           value: {
@@ -397,116 +532,139 @@ export default function MedRiskDashboard() {
                             <XAxis dataKey="name" />
                             <YAxis />
                             <ChartTooltip content={<ChartTooltipContent />} />
-                            <Bar dataKey="value" fill="#8884d8" />
+                            <Bar dataKey="value" fill="#6366f1" radius={[8, 8, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
                       </ChartContainer>
                     </CardContent>
                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Risk Level Distribution</CardTitle>
-                      <CardDescription>Current risk category</CardDescription>
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-slate-500/10 rounded-3xl overflow-hidden">
+                    <CardHeader className="bg-gradient-to-r from-pink-600 to-rose-700 text-white p-6">
+                      <CardTitle className="flex items-center gap-3 text-xl">
+                        <Target className="h-6 w-6" />
+                        Risk Score Meter
+                      </CardTitle>
+                      <CardDescription className="text-pink-100">Current risk level visualization</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6">
                       <ChartContainer
                         config={{
                           value: {
-                            label: "Risk Level",
+                            label: "Risk Score",
                             color: "hsl(var(--chart-1))",
                           },
                         }}
                         className="h-[300px]"
                       >
                         <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={riskDistribution}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={120}
-                              paddingAngle={5}
-                              dataKey="value"
+                          <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="90%" data={radialData}>
+                            <RadialBar dataKey="value" cornerRadius={10} fill={radialData[0]?.fill} />
+                            <text
+                              x="50%"
+                              y="50%"
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              className="fill-slate-700 text-2xl font-bold"
                             >
-                              {riskDistribution.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <ChartTooltip content={<ChartTooltipContent />} />
-                          </PieChart>
+                              {riskScore}/20
+                            </text>
+                          </RadialBarChart>
                         </ResponsiveContainer>
                       </ChartContainer>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Risk Progress */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Risk Score Breakdown</CardTitle>
-                    <CardDescription>Detailed analysis of risk components</CardDescription>
+                {/* Enhanced Risk Progress */}
+                <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-slate-500/10 rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 text-white p-6">
+                    <CardTitle className="flex items-center gap-3 text-xl">
+                      <Heart className="h-6 w-6" />
+                      Comprehensive Risk Breakdown
+                    </CardTitle>
+                    <CardDescription className="text-slate-300">
+                      Detailed analysis of all risk components
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Overall Risk Score</span>
-                        <span>{riskScore}/20</span>
+                  <CardContent className="p-8 space-y-8">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-semibold text-slate-700">Overall Risk Score</span>
+                        <span className="text-2xl font-bold text-slate-800">{riskScore}/20</span>
                       </div>
-                      <Progress value={(riskScore / 20) * 100} className="h-2" />
+                      <div className="relative">
+                        <Progress value={(riskScore / 20) * 100} className="h-4 rounded-full" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full"></div>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <div className="space-y-2">
-                        <h4 className="font-semibold">Modifiable Risk Factors</h4>
-                        <ul className="space-y-1 text-sm">
-                          <li className="flex items-center gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-4">
+                        <h4 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                          <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+                          Modifiable Risk Factors
+                        </h4>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl">
                             <div
-                              className={`w-2 h-2 rounded-full ${assessment.smoking ? "bg-red-500" : "bg-green-500"}`}
+                              className={`w-4 h-4 rounded-full ${assessment.smoking ? "bg-gradient-to-r from-red-500 to-rose-600" : "bg-gradient-to-r from-emerald-500 to-green-600"}`}
                             />
-                            Smoking: {assessment.smoking ? "Yes" : "No"}
-                          </li>
-                          <li className="flex items-center gap-2">
+                            <span className="font-medium text-slate-700">
+                              Smoking: {assessment.smoking ? "Yes" : "No"}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl">
                             <div
-                              className={`w-2 h-2 rounded-full ${assessment.weight && assessment.height && assessment.weight / (assessment.height / 100) ** 2 > 25 ? "bg-orange-500" : "bg-green-500"}`}
+                              className={`w-4 h-4 rounded-full ${assessment.weight && assessment.height && assessment.weight / (assessment.height / 100) ** 2 > 25 ? "bg-gradient-to-r from-orange-500 to-red-500" : "bg-gradient-to-r from-emerald-500 to-green-600"}`}
                             />
-                            BMI:{" "}
-                            {assessment.weight && assessment.height
-                              ? (assessment.weight / (assessment.height / 100) ** 2).toFixed(1)
-                              : "Not calculated"}
-                          </li>
-                          <li className="flex items-center gap-2">
+                            <span className="font-medium text-slate-700">
+                              BMI:{" "}
+                              {assessment.weight && assessment.height
+                                ? (assessment.weight / (assessment.height / 100) ** 2).toFixed(1)
+                                : "Not calculated"}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl">
                             <div
-                              className={`w-2 h-2 rounded-full ${assessment.exercise === "none" ? "bg-red-500" : "bg-green-500"}`}
+                              className={`w-4 h-4 rounded-full ${assessment.exercise === "none" ? "bg-gradient-to-r from-red-500 to-rose-600" : "bg-gradient-to-r from-emerald-500 to-green-600"}`}
                             />
-                            Exercise: {assessment.exercise || "Not specified"}
-                          </li>
-                        </ul>
+                            <span className="font-medium text-slate-700">
+                              Exercise: {assessment.exercise || "Not specified"}
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <h4 className="font-semibold">Non-modifiable Risk Factors</h4>
-                        <ul className="space-y-1 text-sm">
-                          <li className="flex items-center gap-2">
+                      <div className="space-y-4">
+                        <h4 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                          <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full"></div>
+                          Non-modifiable Risk Factors
+                        </h4>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl">
                             <div
-                              className={`w-2 h-2 rounded-full ${assessment.age > 45 ? "bg-orange-500" : "bg-green-500"}`}
+                              className={`w-4 h-4 rounded-full ${assessment.age > 45 ? "bg-gradient-to-r from-orange-500 to-red-500" : "bg-gradient-to-r from-emerald-500 to-green-600"}`}
                             />
-                            Age: {assessment.age} years
-                          </li>
-                          <li className="flex items-center gap-2">
+                            <span className="font-medium text-slate-700">Age: {assessment.age} years</span>
+                          </div>
+                          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl">
                             <div
-                              className={`w-2 h-2 rounded-full ${assessment.familyHistory ? "bg-orange-500" : "bg-green-500"}`}
+                              className={`w-4 h-4 rounded-full ${assessment.familyHistory ? "bg-gradient-to-r from-orange-500 to-red-500" : "bg-gradient-to-r from-emerald-500 to-green-600"}`}
                             />
-                            Family History: {assessment.familyHistory ? "Yes" : "No"}
-                          </li>
-                          <li className="flex items-center gap-2">
+                            <span className="font-medium text-slate-700">
+                              Family History: {assessment.familyHistory ? "Yes" : "No"}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl">
                             <div
-                              className={`w-2 h-2 rounded-full ${assessment.diabetes ? "bg-red-500" : "bg-green-500"}`}
+                              className={`w-4 h-4 rounded-full ${assessment.diabetes ? "bg-gradient-to-r from-red-500 to-rose-600" : "bg-gradient-to-r from-emerald-500 to-green-600"}`}
                             />
-                            Diabetes: {assessment.diabetes ? "Yes" : "No"}
-                          </li>
-                        </ul>
+                            <span className="font-medium text-slate-700">
+                              Diabetes: {assessment.diabetes ? "Yes" : "No"}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -515,104 +673,119 @@ export default function MedRiskDashboard() {
             )}
           </TabsContent>
 
-          <TabsContent value="recommendations" className="space-y-6">
+          <TabsContent value="recommendations" className="space-y-8">
             {riskScore > 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-emerald-500/10 rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-emerald-600 to-green-700 text-white p-6">
+                    <CardTitle className="flex items-center gap-3 text-xl">
+                      <CheckCircle className="h-6 w-6" />
                       Lifestyle Recommendations
                     </CardTitle>
-                    <CardDescription>Evidence-based interventions to reduce risk</CardDescription>
+                    <CardDescription className="text-emerald-100">
+                      Evidence-based interventions to reduce your risk
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      {assessment.smoking && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <h4 className="font-semibold text-red-800">Smoking Cessation</h4>
-                          <p className="text-sm text-red-700">
-                            Quitting smoking can reduce cardiovascular risk by 50% within one year.
+                  <CardContent className="p-6 space-y-6">
+                    {assessment.smoking && (
+                      <div className="p-6 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-2xl shadow-lg">
+                        <h4 className="font-bold text-red-800 text-lg mb-2">🚭 Smoking Cessation</h4>
+                        <p className="text-red-700 leading-relaxed">
+                          Quitting smoking can reduce cardiovascular risk by 50% within one year. Consider nicotine
+                          replacement therapy or consult your doctor about cessation programs.
+                        </p>
+                      </div>
+                    )}
+
+                    {assessment.weight &&
+                      assessment.height &&
+                      assessment.weight / (assessment.height / 100) ** 2 > 25 && (
+                        <div className="p-6 bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl shadow-lg">
+                          <h4 className="font-bold text-orange-800 text-lg mb-2">⚖️ Weight Management</h4>
+                          <p className="text-orange-700 leading-relaxed">
+                            Losing 5-10% of body weight can significantly improve cardiovascular health. Focus on a
+                            balanced diet and regular physical activity.
                           </p>
                         </div>
                       )}
 
-                      {assessment.weight &&
-                        assessment.height &&
-                        assessment.weight / (assessment.height / 100) ** 2 > 25 && (
-                          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                            <h4 className="font-semibold text-orange-800">Weight Management</h4>
-                            <p className="text-sm text-orange-700">
-                              Losing 5-10% of body weight can significantly improve cardiovascular health.
-                            </p>
-                          </div>
-                        )}
+                    {assessment.exercise === "none" && (
+                      <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl shadow-lg">
+                        <h4 className="font-bold text-blue-800 text-lg mb-2">🏃‍♂️ Physical Activity</h4>
+                        <p className="text-blue-700 leading-relaxed">
+                          Aim for 150 minutes of moderate-intensity exercise per week. Start with walking and gradually
+                          increase intensity.
+                        </p>
+                      </div>
+                    )}
 
-                      {assessment.exercise === "none" && (
-                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <h4 className="font-semibold text-blue-800">Physical Activity</h4>
-                          <p className="text-sm text-blue-700">
-                            Aim for 150 minutes of moderate-intensity exercise per week.
-                          </p>
-                        </div>
-                      )}
-
-                      {assessment.bloodPressure === "high" && (
-                        <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                          <h4 className="font-semibold text-purple-800">Blood Pressure Control</h4>
-                          <p className="text-sm text-purple-700">
-                            Monitor blood pressure regularly and follow medical advice for management.
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                    {assessment.bloodPressure === "high" && (
+                      <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl shadow-lg">
+                        <h4 className="font-bold text-purple-800 text-lg mb-2">🩺 Blood Pressure Control</h4>
+                        <p className="text-purple-700 leading-relaxed">
+                          Monitor blood pressure regularly and follow medical advice. Reduce sodium intake and manage
+                          stress levels.
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5 text-blue-500" />
+                <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-blue-500/10 rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6">
+                    <CardTitle className="flex items-center gap-3 text-xl">
+                      <Activity className="h-6 w-6" />
                       Medical Follow-up
                     </CardTitle>
-                    <CardDescription>Recommended medical interventions and monitoring</CardDescription>
+                    <CardDescription className="text-blue-100">
+                      Recommended medical interventions and monitoring
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      {riskLevel === "Very High" && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <h4 className="font-semibold text-red-800">Immediate Medical Consultation</h4>
-                          <p className="text-sm text-red-700">
-                            Schedule an appointment with a cardiologist within 1-2 weeks.
-                          </p>
-                        </div>
-                      )}
-
-                      {riskLevel === "High" && (
-                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                          <h4 className="font-semibold text-orange-800">Comprehensive Evaluation</h4>
-                          <p className="text-sm text-orange-700">
-                            Consider stress testing, echocardiogram, and lipid management.
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <h4 className="font-semibold text-green-800">Regular Monitoring</h4>
-                        <p className="text-sm text-green-700">
-                          • Blood pressure: Monthly
-                          <br />• Cholesterol: Every 6 months
-                          <br />• Weight: Weekly
-                          <br />• HbA1c (if diabetic): Every 3 months
+                  <CardContent className="p-6 space-y-6">
+                    {riskLevel === "Very High" && (
+                      <div className="p-6 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-2xl shadow-lg">
+                        <h4 className="font-bold text-red-800 text-lg mb-2">🚨 Immediate Medical Consultation</h4>
+                        <p className="text-red-700 leading-relaxed">
+                          Schedule an appointment with a cardiologist within 1-2 weeks. Your risk level requires
+                          immediate professional assessment.
                         </p>
                       </div>
+                    )}
 
-                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <h4 className="font-semibold text-blue-800">Preventive Medications</h4>
-                        <p className="text-sm text-blue-700">
-                          Discuss with your doctor about aspirin, statins, or ACE inhibitors if appropriate.
+                    {riskLevel === "High" && (
+                      <div className="p-6 bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl shadow-lg">
+                        <h4 className="font-bold text-orange-800 text-lg mb-2">🔍 Comprehensive Evaluation</h4>
+                        <p className="text-orange-700 leading-relaxed">
+                          Consider stress testing, echocardiogram, and comprehensive lipid management with your
+                          healthcare provider.
                         </p>
                       </div>
+                    )}
+
+                    <div className="p-6 bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-2xl shadow-lg">
+                      <h4 className="font-bold text-emerald-800 text-lg mb-3">📅 Regular Monitoring Schedule</h4>
+                      <div className="space-y-2 text-emerald-700">
+                        <p>
+                          • <strong>Blood pressure:</strong> Monthly monitoring
+                        </p>
+                        <p>
+                          • <strong>Cholesterol:</strong> Every 6 months
+                        </p>
+                        <p>
+                          • <strong>Weight:</strong> Weekly tracking
+                        </p>
+                        <p>
+                          • <strong>HbA1c (if diabetic):</strong> Every 3 months
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl shadow-lg">
+                      <h4 className="font-bold text-indigo-800 text-lg mb-2">💊 Preventive Medications</h4>
+                      <p className="text-indigo-700 leading-relaxed">
+                        Discuss with your doctor about aspirin therapy, statins, or ACE inhibitors based on your
+                        individual risk profile.
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -620,12 +793,15 @@ export default function MedRiskDashboard() {
             )}
 
             {riskScore === 0 && (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">Complete Risk Assessment</h3>
-                  <p className="text-gray-500">
-                    Please complete the risk assessment to view personalized recommendations.
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-slate-500/10 rounded-3xl overflow-hidden">
+                <CardContent className="p-12 text-center">
+                  <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-slate-400 to-slate-500 rounded-3xl shadow-2xl shadow-slate-500/25 mb-6">
+                    <Heart className="h-12 w-12 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-700 mb-4">Complete Your Risk Assessment</h3>
+                  <p className="text-slate-500 text-lg max-w-md mx-auto leading-relaxed">
+                    Please complete the comprehensive risk assessment to receive personalized recommendations and
+                    insights.
                   </p>
                 </CardContent>
               </Card>
